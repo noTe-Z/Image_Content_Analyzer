@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Content Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #upload-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #file-input {
+            display: none;
+        }
+        #upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        #preview {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+        #description {
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Content Analyzer</h1>
+    <div id="upload-form">
+        <label for="file-input" id="upload-label">Choose an image</label>
+        <input type="file" id="file-input" accept="image/*">
+    </div>
+    <img id="preview" style="display: none;">
+    <div id="description"></div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+        const description = document.getElementById('description');
+
+        fileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                // Display preview
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+
+                // Upload and analyze
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    description.textContent = 'Analyzing...';
+                    const response = await axios.post('/analyze', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    description.textContent = response.data.description;
+                } catch (error) {
+                    console.error('Error:', error);
+                    description.textContent = 'An error occurred while analyzing the image.';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
